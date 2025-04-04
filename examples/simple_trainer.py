@@ -205,8 +205,14 @@ def create_splats_with_optimizers(
     world_size: int = 1,
 ) -> Tuple[torch.nn.ParameterDict, Dict[str, torch.optim.Optimizer]]:
     if init_type == "sfm":
-        points = torch.from_numpy(parser.points).float()
-        rgbs = torch.from_numpy(parser.points_rgb / 255.0).float()
+        if init_num_pts >= len(parser.points):
+            points = torch.from_numpy(parser.points).float()
+            rgbs = torch.from_numpy(parser.points_rgb / 255.0).float()
+        else:
+            samples = init_num_pts
+            points_index = np.random.choice(samples, size=init_num_pts, replace=False)
+            points = torch.from_numpy(np.array([parser.points[i] for i in points_index])).float()
+            rgbs = torch.from_numpy(np.array([parser.points_rgb[i] / 255.0 for i in points_index])).float()
     elif init_type == "random":
         points = init_extent * scene_scale * (torch.rand((init_num_pts, 3)) * 2 - 1)
         rgbs = torch.rand((init_num_pts, 3))
@@ -842,7 +848,11 @@ class Runner:
                 self.viewer.state.num_train_rays_per_sec = num_train_rays_per_sec
                 # Update the scene.
                 self.viewer.update(step, num_train_rays_per_step)
-
+                
+        if not self.cfg.disable_viewer:
+            self.server.stop()
+            print("Viewer server closed.")
+    
     @torch.no_grad()
     def eval(self, step: int, stage: str = "val"):
         """Entry for evaluation."""
@@ -1063,7 +1073,7 @@ def main(local_rank: int, world_rank, world_size: int, cfg: Config):
 
     if not cfg.disable_viewer:
         print("Viewer running... Ctrl+C to exit.")
-        time.sleep(1000000)
+        # time.sleep(1000000)
 
 
 if __name__ == "__main__":
