@@ -24,7 +24,7 @@ pip install gsplat
 Alternatively you can install gsplat from source. In this way it will build the CUDA code during installation.
 
 ```bash
-pip install git+https://github.com/nerfstudio-project/gsplat.git
+pip install git+https://github.com/hecodeit/gsplat.git
 ```
 
 We also provide [pre-compiled wheels](https://docs.gsplat.studio/whl) for both linux and windows on certain python-torch-CUDA combinations (please check first which versions are supported). Note this way you would have to manually install [gsplat's dependencies](https://github.com/nerfstudio-project/gsplat/blob/6022cf45a19ee307803aaf1f19d407befad2a033/setup.py#L115). For example, to install gsplat for pytorch 2.0 and cuda 11.8 you can run
